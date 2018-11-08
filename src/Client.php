@@ -17,16 +17,18 @@ use Dotenv\Dotenv;
 class Client
 {
     /**
-     * @var \GuzzleHttp\Client
-     */
-    protected $client;
-
-    /**
      * API_KEY
      *
      * @var string
      */
     protected $apikey;
+
+    /**
+     * API_URL
+     *
+     * @var string
+     */
+    protected $apiurl;
 
     /**
      * @var integer
@@ -69,15 +71,9 @@ class Client
         }
         $dotenv->load();
 
-        // Configure HTTP Client
-        $this->client = new \GuzzleHttp\Client([
-            'base_uri' => getenv('SMITH_API_URL'),
-            'timeout' => 30,
-            'verify' => false
-        ]);
-
         // Set apikey token
         $this->apikey = getenv('SMITH_API_KEY');
+        $this->apiurl = getenv('SMITH_API_URL') . (substr(getenv('SMITH_API_URL'), -1) == '/' ? '' : '/');
 
         // Set projectname, name
         $this->author = $author;
@@ -93,25 +89,48 @@ class Client
      */
     public function start($expectedtime)
     {
-        try
+        // Initialize curl
+        $curl = curl_init();
+
+        // Generate url
+        $url = $this->apiurl . 'start?';
+        $params = [
+            'author' => $this->author,
+            'project' => $this->projectname,
+            'taskname' => $this->taskname,
+            'expected_time' => $expectedtime,
+            'apikey' => $this->apikey
+        ];
+        $url .= http_build_query($params);
+
+        // Set curl options
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $url,
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json'
+            ],
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        // Send the request & save response to $resp
+        $response = curl_exec($curl);
+
+        // Get code
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        // Close request to clear up some resources
+        curl_close($curl);
+
+        // Response to json
+        $responsejson = json_decode($response);
+
+        if($httpcode >= 200 && $httpcode < 300)
         {
-            $response = $this->client->get('start', [
-                'query' => [
-                    'author' => $this->author,
-                    'project' => $this->projectname,
-                    'taskname' => $this->taskname,
-                    'expected_time' => $expectedtime,
-                    'apikey' => $this->apikey
-                ]
-            ]);
-
-            $returnobject = json_decode($response->getBody()->getContents());
-
-            $this->recordid = $returnobject->id;
-
+            $this->recordid = $responsejson->id;
             return true;
         }
-        catch(\Exception $e)
+        else
         {
             return false;
         }
@@ -125,19 +144,42 @@ class Client
      */
     public function comment($comment)
     {
-        try
-        {
-            $this->client->get('comment', [
-                'query' => [
-                    'id' => $this->recordid,
-                    'comment' => $comment,
-                    'apikey' => $this->apikey
-                ]
-            ]);
+        // Initialize curl
+        $curl = curl_init();
 
+        // Generate url
+        $url = $this->apiurl . 'comment?';
+        $params = [
+            'id' => $this->recordid,
+            'comment' => $comment,
+            'apikey' => $this->apikey
+        ];
+        $url .= http_build_query($params);
+
+        // Set curl options
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $url,
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json'
+            ],
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        // Send the request & save response to $resp
+        curl_exec($curl);
+
+        // Get code
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        // Close request to clear up some resources
+        curl_close($curl);
+
+        if($httpcode >= 200 && $httpcode < 300)
+        {
             return true;
         }
-        catch(\Exception $e)
+        else
         {
             return false;
         }
@@ -151,19 +193,42 @@ class Client
      */
     public function finish($comment = null)
     {
-        try
-        {
-            $this->client->get('finish', [
-                'query' => [
-                    'id' => $this->recordid,
-                    'comment' => $comment,
-                    'apikey' => $this->apikey
-                ]
-            ]);
+        // Initialize curl
+        $curl = curl_init();
 
+        // Generate url
+        $url = $this->apiurl . 'finish?';
+        $params = [
+            'id' => $this->recordid,
+            'comment' => $comment,
+            'apikey' => $this->apikey
+        ];
+        $url .= http_build_query($params);
+
+        // Set curl options
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $url,
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json'
+            ],
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        // Send the request & save response to $resp
+        curl_exec($curl);
+
+        // Get code
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        // Close request to clear up some resources
+        curl_close($curl);
+
+        if($httpcode >= 200 && $httpcode < 300)
+        {
             return true;
         }
-        catch(\Exception $e)
+        else
         {
             return false;
         }
@@ -177,19 +242,42 @@ class Client
      */
     public function fail($comment = null)
     {
-        try
-        {
-            $this->client->get('fail', [
-                'query' => [
-                    'id' => $this->recordid,
-                    'comment' => $comment,
-                    'apikey' => $this->apikey
-                ]
-            ]);
+        // Initialize curl
+        $curl = curl_init();
 
+        // Generate url
+        $url = $this->apiurl . 'fail?';
+        $params = [
+            'id' => $this->recordid,
+            'comment' => $comment,
+            'apikey' => $this->apikey
+        ];
+        $url .= http_build_query($params);
+
+        // Set curl options
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $url,
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json'
+            ],
+            CURLOPT_TIMEOUT => 30
+        ]);
+
+        // Send the request & save response to $resp
+        curl_exec($curl);
+
+        // Get code
+        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        // Close request to clear up some resources
+        curl_close($curl);
+
+        if($httpcode >= 200 && $httpcode < 300)
+        {
             return true;
         }
-        catch(\Exception $e)
+        else
         {
             return false;
         }
