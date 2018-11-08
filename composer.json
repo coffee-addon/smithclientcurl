@@ -1,5 +1,5 @@
 {
-    "name": "monitoring/smithclient",
+    "name": "monitoring/smithclientcurl",
     "description": "CURL Client for a monitoring aggregation system (used for projects where we cannot install guzzle)",
     "type": "library",
     "authors": [
